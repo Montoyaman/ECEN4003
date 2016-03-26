@@ -1,3 +1,5 @@
+package dictionaryattack;
+
 ///////////////////////////////////////////////////////////
 //	Hasher.java
 //
@@ -13,7 +15,7 @@ import java.security.NoSuchAlgorithmException;
 public class Hasher{
 
 	public String password;
-	public String password_hash
+	public String password_hash;
 	
 	/**
 	 * Constructor
@@ -23,7 +25,7 @@ public class Hasher{
 	 */
 	public Hasher(String string, String hash_algorithm) {
 	
-		password = passwordString;
+		password = string;
 		hash(hash_algorithm);
 	}
 	
@@ -42,7 +44,7 @@ public class Hasher{
 		} 
 		
 		//MessageDigest takes in a byte array
-		hasher.update(originalString.getBytes());
+		hasher.update(password.getBytes());
 		// Computes the hash and then converts the hashed byte array to a (lower case) string
 		password_hash = DatatypeConverter.printHexBinary(hasher.digest()).toLowerCase();
 	}
