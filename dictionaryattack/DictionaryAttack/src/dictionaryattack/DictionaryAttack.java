@@ -35,12 +35,29 @@ public class DictionaryAttack {
 //            System.out.println(pass.passwords.remove());
 //        }
 
-        //Test the reader
-//        String workingPath = new String();
+        //Read the dictionary into variable dictionary
         String workingPath = DictionaryAttack.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         String path = workingPath.concat("dictionaryattack/john/john.txt");
-        PullStrings puller = new PullStrings(path);
-        String[] dictionary = puller.OpenFile();
+        DictionaryReader dict = new DictionaryReader(path);
+        String[] dictionary = dict.OpenFile();
+        
+        //Read the symbol table
+        path = workingPath.concat("dictionaryattack/symbols/symbols.txt");
+        DictionaryReader syms = new DictionaryReader(path);
+        String[] symbols = syms.OpenFile(); 
+        
+        //Read the numbers table
+        path = workingPath.concat("dictionaryattack/numbers/numbers.txt");
+        DictionaryReader nums = new DictionaryReader(path);
+        String[] numbers = nums.OpenFile(); 
+        
+        //Lets test the combination generator
+        CombGen gen = new CombGen(symbols,2);
+        
+        //Pull the first value
+        LinkedList<String> test = gen.combin();
+        test = gen.combin();
+
     }
     
 }
