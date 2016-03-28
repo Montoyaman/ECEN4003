@@ -37,10 +37,48 @@ public class DictionaryAttack {
 
         //Test the reader
 //        String workingPath = new String();
+        if (args.length != 4) {
+            System.out.println("incorrect # of arguments");
+            return;
+        }
+        
+        
         String workingPath = DictionaryAttack.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        String path = workingPath.concat("dictionaryattack/john/john.txt");
-        PullStrings puller = new PullStrings(path);
-        String[] dictionary = puller.OpenFile();
+        workingPath = workingPath.concat("dictionaryattack/");
+        
+        String dictPath = workingPath.concat(args[0]);
+        String hashPath = workingPath.concat(args[1]);
+        String rulesPath = workingPath.concat(args[2]);
+        String rules = args[3];
+        String charSet[] = rules.split("\\r?\\n");
+        
+        DictionaryReader dict = new DictionaryReader(dictPath);
+        DictionaryReader hashes = new DictionaryReader(hashPath);
+        
+        //PullStrings puller = new PullStrings(path);
+        //String[] dictionary = puller.OpenFile();
+        int numLines = dict.getNumLines();
+        
+        for(int i = 0; i <= numLines; i++) {
+            for(int j = 0; j <= charSet.length; j++) {
+                PermutePassword pass = new PermutePassword();
+                LinkedList<String> passCombo = new LinkedList();
+
+                passCombo.add(dict.text[i]);
+                passCombo.add(charSet[j]);
+                pass.permute(passCombo);
+                System.out.println(pass.passwords);
+            }
+        }
     }
     
+    
+    private class Task implements Runnable {
+        
+        
+        
+        public void run() {
+            return;
+        }
+    }
 }

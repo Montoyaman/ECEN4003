@@ -17,10 +17,12 @@ import java.io.LineNumberReader;
 public class DictionaryReader  {
     private final String dictionaryPath;
     public int n;
+    public String text[];
     
     public DictionaryReader(String filepath) throws IOException{
         dictionaryPath = filepath;
         n = getNumLines();
+        text = new String[n];
     }
     
     //This function extracts a specific line from the dictionary, start zero indexed
@@ -39,7 +41,7 @@ public class DictionaryReader  {
         return line; //Return the line
     }
     
-    private int getNumLines() throws IOException {
+    public int getNumLines() throws IOException {
         FileReader Reader = new FileReader(dictionaryPath);
         LineNumberReader lineReader = new LineNumberReader(Reader);
         
@@ -52,16 +54,13 @@ public class DictionaryReader  {
         return lines; //Number of lines in the file
     }
     
-    public String[] OpenFile() throws IOException{
+    public void OpenFile() throws IOException{
         FileReader Reader = new FileReader(dictionaryPath);
         BufferedReader tRead = new BufferedReader(Reader);
-        
-        String[] text = new String[n];
         
         for (int i = 0; i < n; i++) {
             text[i] = tRead.readLine(); //Populate string array
         }
-        
-        return text; //This is a big file potentially, might not be a good idea
+       
     }
 }

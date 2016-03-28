@@ -1,12 +1,10 @@
 package dictionaryattack;
 
-///////////////////////////////////////////////////////////
-//	Hasher.java
-//
-//	Hasher takes a string and hash algorithm and finds the
-//	hash of the string using that hash algorithm.
-//
-///////////////////////////////////////////////////////////
+/**
+ * 	Hasher takes a string and hash algorithm and finds the
+ * 	hash of the string using that hash algorithm.
+ * @author CyParker
+ */
 
 import java.security.MessageDigest;
 import javax.xml.bind.DatatypeConverter;
