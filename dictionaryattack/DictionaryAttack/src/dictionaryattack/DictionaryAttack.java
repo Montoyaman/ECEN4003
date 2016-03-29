@@ -7,13 +7,23 @@ package dictionaryattack;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author RyanDavidMontoya
  */
 public class DictionaryAttack {
-
+    
+    public static BlockingQueue<String> dictionary;
+    public static CombGen gen;
+    public static int numThreads = 4;
+    public static Thread[] threads = new Thread[numThreads];
     /**
      * @param args the command line arguments
      */
@@ -34,51 +44,75 @@ public class DictionaryAttack {
 //        for (int i = 0; i < len; i++) {
 //            System.out.println(pass.passwords.remove());
 //        }
+        
 
-        //Test the reader
-//        String workingPath = new String();
-        if (args.length != 4) {
-            System.out.println("incorrect # of arguments");
-            return;
-        }
-        
-        
+        //Read the dictionary into variable dictionary
         String workingPath = DictionaryAttack.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        workingPath = workingPath.concat("dictionaryattack/");
-        
-        String dictPath = workingPath.concat(args[0]);
-        String hashPath = workingPath.concat(args[1]);
-        String rulesPath = workingPath.concat(args[2]);
-        String rules = args[3];
-        String charSet[] = rules.split("\\r?\\n");
-        
-        DictionaryReader dict = new DictionaryReader(dictPath);
-        DictionaryReader hashes = new DictionaryReader(hashPath);
-        
-        //PullStrings puller = new PullStrings(path);
-        //String[] dictionary = puller.OpenFile();
-        int numLines = dict.getNumLines();
-        
-        for(int i = 0; i <= numLines; i++) {
-            for(int j = 0; j <= charSet.length; j++) {
-                PermutePassword pass = new PermutePassword();
-                LinkedList<String> passCombo = new LinkedList();
-
-                passCombo.add(dict.text[i]);
-                passCombo.add(charSet[j]);
-                pass.permute(passCombo);
-                System.out.println(pass.passwords);
-            }
+        String path = workingPath.concat("dictionaryattack/john/john.txt");
+        DictionaryReader dict = new DictionaryReader(path);
+        dictionary = new ArrayBlockingQueue(dict.text.length);
+        for(int i = 0; i < dict.text.length; i++) {
+            dictionary.add((dict.text[i]));
         }
+        
+        //Read the symbol table
+        path = workingPath.concat("dictionaryattack/symbols/symbols.txt");
+        DictionaryReader symbols = new DictionaryReader(path);
+        
+        //Read the numbers table
+        path = workingPath.concat("dictionaryattack/numbers/numbers.txt");
+        DictionaryReader numbers = new DictionaryReader(path);
+        
+        //Lets test the combination generator
+        CombGen symGen = new CombGen(symbols.text,2);
+        LinkedList<String> symGens = symGen.combin();
+        
+        for(int i = 0; i < numThreads; i++) {
+            threads[i] = new Thread(new DictTask(symGens));
+            threads[i].start();
+        }
+
     }
-    
-    
-    private class Task implements Runnable {
-        
-        
-        
+       private class DictTask implements Runnable {
+           private LinkedList<String> symbols;
+                
+        public void DictTask(LinkedList<String> syms){
+            this.symbols = syms;
+        }
         public void run() {
+            String word;
+            while(dictionary.peek() != null){
+                try {
+                    word = dictionary.poll(10, TimeUnit.MILLISECONDS);
+                    
+                    //passwordChecker.add()
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(DictionaryAttack.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
             return;
         }
     }
+//    private class ComboTask implements Runnable {
+//        String word;
+//        DictionaryReader symbols;
+//        DictionaryReader numbers;
+//        int rule;
+//                
+//        public void Task(DictionaryReader symTab, DictionaryReader numTab, int rule){
+//            this.symbols = symTab;
+//            this.numbers = numTab;
+//            this.rule = rule;
+//        }
+//        public void run() {
+//            //make combos based on the rule!
+//            return;
+//        }
+//    }
+    
+    
+ 
+    
+    
 }

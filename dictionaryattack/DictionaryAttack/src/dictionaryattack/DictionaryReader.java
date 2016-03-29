@@ -41,7 +41,7 @@ public class DictionaryReader  {
         return line; //Return the line
     }
     
-    public int getNumLines() throws IOException {
+    private int getNumLines() throws IOException {
         FileReader Reader = new FileReader(dictionaryPath);
         LineNumberReader lineReader = new LineNumberReader(Reader);
         
