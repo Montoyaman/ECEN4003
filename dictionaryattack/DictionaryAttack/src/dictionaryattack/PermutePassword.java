@@ -12,20 +12,22 @@ import java.util.LinkedList;
  * @author RyanDavidMontoya
  */
 public class PermutePassword {
-    LinkedList<String> passwords;
-    LinkedList<String> temp;
-    String item;
+    private LinkedList<String> temp;
+    private String item;
     
     //Constructor
     public PermutePassword() {
-        passwords = new LinkedList<>();
         //Temporary string array for changing the input
         temp = new LinkedList<>();
         item = new String();
     }
-    
+    public LinkedList<String> permute(LinkedList<String> list){
+        LinkedList<String> passwords = new LinkedList();
+        permuteRecur(list, passwords);
+        return passwords;
+    }
     //Takes a list of strings, generates all permuted stings
-    public void permute(LinkedList<String> list) {
+    private void permuteRecur(LinkedList<String> list, LinkedList<String> passwords) {
         int len = list.size();
         //If there are no more elements
         if (len == 0) {
@@ -46,7 +48,7 @@ public class PermutePassword {
                 
                 //Remove the element, push further
                 inputs.remove(i);
-                permute(inputs);
+                permuteRecur(inputs, passwords);
                 
                 //Remove element from the list
                 temp.removeLast();

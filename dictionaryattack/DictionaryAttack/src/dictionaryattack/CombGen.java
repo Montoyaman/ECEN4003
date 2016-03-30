@@ -50,9 +50,12 @@ public class CombGen {
         //Use recursion to pull each combination
       
         counter cnt = new counter();
-        //Pull a symbol combination (initialize cnt and index to 0)
-        LinkedList<String> comb = combRecur(Is, cnt, k, 0, symbols);
-        Is++;
+        LinkedList<String> comb = new LinkedList();
+        //Pull a symbol combination (initialize cnt and index to 0
+
+        comb = combRecur(Is, cnt, k, 0, symbols);
+        Is++;   
+
         
         return comb;
     }
