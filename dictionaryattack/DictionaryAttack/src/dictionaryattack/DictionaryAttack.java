@@ -123,6 +123,8 @@ public class DictionaryAttack {
             LinkedList<String> symbol;
             PermutePassword perm = new PermutePassword(); 
             LinkedList<String> permutedPasswords;
+            long start = 0;
+            long end = 0;
             //for MAXSYMBOLS
             
             while(dictionary.peek() != null){
@@ -130,17 +132,21 @@ public class DictionaryAttack {
                     word = dictionary.poll(10, TimeUnit.MILLISECONDS);
                     //just add each smybol to the begining and end of the word for now
                     for( int i = 0; i < MAXSYMBOLS; i++){
+                        start = System.currentTimeMillis();
                         for(int j = 0; j < symbolTable[i].size() ; j++) {
-                            symbol = symbolTable[i].get(j);
+                            symbol = new LinkedList(symbolTable[i].get(j));
                             symbol.add(word);
                             permutedPasswords = perm.permute(symbol);
                             //System.out.println("WORD: " + word + "      SYMBOL: " + symbol);
                             for(int k = 0; k < permutedPasswords.size(); k++) {
                                 //System.out.println(permutedPasswords.get(k));
                                 hChecker.add(permutedPasswords.get(k));
+                                hChecker.checkMatch();
                             }
                         }
                     }
+                    end = System.currentTimeMillis();
+                    System.out.println("WORD: " + word + "      TIME: " + (end-start));
                     hChecker.add(word);
 
                 } catch (InterruptedException ex) {

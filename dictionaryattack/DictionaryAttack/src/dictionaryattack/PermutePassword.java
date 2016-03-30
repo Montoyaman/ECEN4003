@@ -24,6 +24,8 @@ public class PermutePassword {
     public LinkedList<String> permute(LinkedList<String> list){
         LinkedList<String> passwords = new LinkedList();
         permuteRecur(list, passwords);
+        temp = new LinkedList();
+        item = new String();
         return passwords;
     }
     //Takes a list of strings, generates all permuted stings
