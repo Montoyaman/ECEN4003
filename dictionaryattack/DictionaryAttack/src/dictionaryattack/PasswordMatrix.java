@@ -45,79 +45,35 @@ class Node {
  * @author RyanDavidMontoya
  */
 public class PasswordMatrix {
-    //Array of atomic booleans
-    Node[] passArray;
-    private final int length;
-    //Array of pointers
+    //Array of node elements
+    Node[][] passArray;
+    public final int length;
     
     //Initialize the password matrix with dimension n
     public PasswordMatrix(int n) {
         length = n;
-        
-        //Find how many elements there are
-        int elements = 0;
-        for (int i = 1; i <=n; i++) {
-            elements += i;
-        }
-        passArray = new Node[elements];
+
+        passArray = new Node[n][n];
         //Allocate the boolean array
-        for (int i = 0; i < elements; i++) {
-            passArray[i] = new Node();
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                passArray[i][j] = new Node();
+            }
         }
     }
     
     //Returns if the node is complete
     public boolean getComplete(int r, int c) {
-        int index = 0;
-        
-        //Swap values if below diagonal
-        if (r > c) {
-            int t = c;
-            r = c;
-            c = t;
-        }
-        
-        for (int i = 0; i < r; i++){
-            index += (length-r);
-        }
-        index += (c-r);
-        return passArray[index].isComplete();        
+        return passArray[r][c].isComplete();        
     }
     
     //Returns the node
     public Node getNode(int r, int c) {
-        int index = 0;
-        
-        //Swap values if below diagonal
-        if (r > c) {
-            int t = c;
-            r = c;
-            c = t;
-        }
-        
-        for (int i = 0; i < r; i++){
-            index += (length-r);
-        }
-        index += (c-r);
-        
-        return passArray[index];        
+        return passArray[r][c];        
     }
     
     public boolean setComplete(int r, int c) {
-        int index = 0;
-        
-        //Swap values if below diagonal
-        if (r > c) {
-            int t = c;
-            r = c;
-            c = t;
-        }
-        
-        for (int i = 0; i < r; i++){
-            index += (length-r);
-        }
-        index += (c-r);
-        return passArray[index].setComplete();
+        return passArray[r][c].setComplete();
     }
     
     public static void main(String[] args)  {    
@@ -128,6 +84,11 @@ public class PasswordMatrix {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 Node test = matrix.getNode(i, j);
+ 
+                if (test.elements == null) {
+                    int debug = 1;
+                }
+                
                 test.startList(i);
                 test.setComplete();
                 System.out.println(test.isComplete());
