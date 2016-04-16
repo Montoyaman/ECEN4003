@@ -56,11 +56,15 @@ public class CharSub {
             }
         }
         if(word.length() != 0) {
-        character = word.substring(0, 1);
-        character = character.toUpperCase();
-        StringBuilder temp = new StringBuilder(word);
-        temp.setCharAt(0, character.toCharArray()[0]);
-        ret.add(temp.toString());
+            character = word.substring(0, 1);
+            character = character.toUpperCase();
+            StringBuilder temp = new StringBuilder(word);
+            temp.setCharAt(0, character.toCharArray()[0]);
+            
+            //Check if its a duplicate
+            if (!temp.toString().equals(ret.getFirst())) {
+                ret.add(temp.toString());
+            }
         }
         
         return ret;

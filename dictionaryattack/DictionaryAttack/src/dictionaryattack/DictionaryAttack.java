@@ -26,7 +26,7 @@ public class DictionaryAttack {
     public static int dictCount = 0;
     //public static BlockingQueue<String> dictionary;
     public static String[] dictionary;
-    public static int numDictThreads = 1;
+    public static int numDictThreads = 4;
     public static int numHCheckThreads = 1;
     private static int MAXSYMBOLS = 2;
     public static int numGenThreads = MAXSYMBOLS - 1;
@@ -82,8 +82,8 @@ public class DictionaryAttack {
         symbols.OpenFile();
         
         //Read the numbers table
-        path = workingPath.concat("dictionaryattack/numbers/numbers.txt");
-        DictionaryReader numbers = new DictionaryReader(path);
+//        path = workingPath.concat("dictionaryattack/numbers/numbers.txt");
+//        DictionaryReader numbers = new DictionaryReader(path);
         
         symbolTable[0] = new LinkedList();
         for(int i = 0; i < symbols.text.length; i++) {
@@ -183,8 +183,9 @@ public class DictionaryAttack {
                     symbol.add(word1);
                     symbol.add(word2);
                     permutedPasswords = perm.permute(symbol);
+                    
                     for(int k = 0; k < permutedPasswords.size(); k++) {
-                        //System.out.println(permutedPasswords.get(k));
+//                        System.out.println(permutedPasswords.get(k));
                         hChecker.add(permutedPasswords.get(k));
                         //progType (1)
                         if(progType == 1){
@@ -219,10 +220,6 @@ public class DictionaryAttack {
         
         @Override
         public void run() {
-            String rowWord;
-            long start = 0;
-            long end = 0;
-            int myIndex;
             LinkedList<String> colWords;
             
             for(int idxRow = 0; idxRow < dictionary.length; idxRow++){
@@ -246,12 +243,15 @@ public class DictionaryAttack {
                             }
                             //Try to take that element
                             if(node.elements[idx].compareAndSet(false, true)) {
-                                if(idxRow == idxCol){
-                                    
-                                    tryOnePermute(colWords.get(idx));
+                                //If we are below the diagonal, don't try the first element, its a duplicate
+                                if (!(idxRow > idxCol && idx == 0)) {
+                                    //On the diagonal
+                                    if(idxRow == idxCol){
+                                        tryOnePermute(colWords.get(idx));
+                                    } else { //Permute both words
+                                        tryTwoPermute(dictionary[idxRow], colWords.get(idx));
+                                    }
                                 }
-                                
-                                tryTwoPermute(dictionary[idxRow], colWords.get(idx));
                             }
                             
                             if(idx == node.elements.length-1){
