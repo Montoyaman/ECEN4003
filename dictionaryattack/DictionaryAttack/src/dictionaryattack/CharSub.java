@@ -47,20 +47,28 @@ public class CharSub {
         StringBuilder newWord = new StringBuilder(word);
         //do repacements
         for(int i = 0; i <= range; i++) {
-            character = word.substring(i, i);
+            character = word.substring(i, i+1);
             if(null != (replace = charToSymbol.get(character.toLowerCase()))){
                 StringBuilder temp = new StringBuilder(word);
                 temp.setCharAt(i, replace.toCharArray()[0]);
                 ret.add(temp.toString());
             }
         }
-        
-        character = word.substring(0, 0);
+        if(word.length() != 0) {
+        character = word.substring(0, 1);
         character = character.toUpperCase();
         StringBuilder temp = new StringBuilder(word);
         temp.setCharAt(0, character.toCharArray()[0]);
         ret.add(temp.toString());
+        }
         
         return ret;
+    }
+    
+    public static void main(String[] args){
+        CharSub tester = new CharSub();
+        LinkedList<String> words = tester.sub("password");
+        System.out.println(words);
+        
     }
 }
