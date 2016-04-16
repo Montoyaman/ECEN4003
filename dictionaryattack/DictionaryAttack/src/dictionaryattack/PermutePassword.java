@@ -18,7 +18,7 @@ public class PermutePassword {
     //Constructor
     public PermutePassword() {
         //Temporary string array for changing the input
-        temp = new LinkedList<>();
+        temp = new LinkedList<String>();
         item = new String();
     }
     public LinkedList<String> permute(LinkedList<String> list){
@@ -42,7 +42,7 @@ public class PermutePassword {
         } else {
             //Remove an element and pass array down
             for (int i = 0; i < len; i++){
-                LinkedList<String> inputs = new LinkedList<>(); //Copy each time so we don't edit the original
+                LinkedList<String> inputs = new LinkedList<String>(); //Copy each time so we don't edit the original
                 inputs.addAll(list); //Deep copy
                 
                 //Add the element to temporary list

@@ -56,7 +56,8 @@ public class DictionaryAttack {
         
         
         //Read the dictionary into variable dictionary
-        String workingPath = DictionaryAttack.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+//        String workingPath = DictionaryAttack.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String workingPath = "./";
         String path = workingPath.concat("dictionaryattack/john/john.txt");
         DictionaryReader dict = new DictionaryReader(path);
         dictionary = dict.text;

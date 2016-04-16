@@ -20,7 +20,7 @@ public class HashChecker {
         private final DictionaryReader hashes;
         
         public HashChecker(DictionaryReader hashes) {
-            hashQ = new LinkedBlockingQueue<>();
+            hashQ = new LinkedBlockingQueue<String>();
             this.hashes = hashes;
         }
         
