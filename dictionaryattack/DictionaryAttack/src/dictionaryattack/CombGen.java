@@ -14,7 +14,6 @@ import java.util.LinkedList;
 //Pass a single word into the combination generator and it will build and permute
 //All combinations of the word and the symbol and number table
 
-//This seems stupid, but its so I can pass by reference
 class counter {
     private int cnt;
     
