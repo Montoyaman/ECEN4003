@@ -41,6 +41,7 @@ public class CharSub {
     
     public LinkedList<String> sub(String word){
         LinkedList<String> ret = new LinkedList();
+        ret.add(word);
         int range = word.length() - 1;
         String character;
         String replace;

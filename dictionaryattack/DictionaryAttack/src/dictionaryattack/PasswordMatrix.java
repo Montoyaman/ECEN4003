@@ -8,7 +8,7 @@ package dictionaryattack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class Node {
-    AtomicBoolean[] elements; //Charsub elements
+    public AtomicBoolean[] elements; //Charsub elements
     private AtomicBoolean complete; //Have all entries been tried?
     private AtomicBoolean flag; //Has been started already, no need to reallocate
     
@@ -29,7 +29,7 @@ class Node {
         return complete.compareAndSet(false, true);
     }
     
-    public void StartList(int n) {
+    public void startList(int n) {
         if (flag.compareAndSet(false, true)) {
             elements = new AtomicBoolean[n];
 
@@ -128,7 +128,7 @@ public class PasswordMatrix {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 Node test = matrix.getNode(i, j);
-                test.StartList(i);
+                test.startList(i);
                 test.setComplete();
                 System.out.println(test.isComplete());
                 test.elements = null; //Clear it out

@@ -36,6 +36,8 @@ public class DictionaryAttack {
     private static HashChecker hChecker;
     private static LinkedList<LinkedList<String>>[] symbolTable = new LinkedList[MAXSYMBOLS];
     private static final CharSub charSub = new CharSub();
+    private static PasswordMatrix passMatrix;
+    public static int progType = 2;
     
      /**
      * @param args the command line arguments
@@ -45,7 +47,7 @@ public class DictionaryAttack {
         //progName, numDictThreads, numHCheckThreads, (1:sequential, 2:passThrough, 3:readerWriter)
         numDictThreads = Integer.parseInt(args[0]);
         numHCheckThreads = Integer.parseInt(args[1]);
-        int progType = Integer.parseInt(args[2]);
+        progType = Integer.parseInt(args[2]);
         
         
         //Read the dictionary into variable dictionary
@@ -54,6 +56,7 @@ public class DictionaryAttack {
         DictionaryReader dict = new DictionaryReader(path);
         dictionary = dict.text;
         dict.OpenFile();
+        passMatrix = new PasswordMatrix(dictionary.length);
         //dictionary = new ArrayBlockingQueue(dict.text.length);
         /*for(int i = 0; i < dict.text.length; i++) {
             //add index
@@ -132,66 +135,96 @@ public class DictionaryAttack {
         public DictTask(){
         }
         
-        @Override
-        public void run() {
-            String word;
+        public void tryTwoPermute(String word1, String word2){
             LinkedList<String> symbol;
             PermutePassword perm = new PermutePassword(); 
             LinkedList<String> permutedPasswords;
+            for( int i = 0; i < MAXSYMBOLS; i++){
+
+                for(int j = 0; j < symbolTable[i].size() ; j++) {
+                    symbol = new LinkedList(symbolTable[i].get(j));
+                    symbol.add(word1);
+                    symbol.add(word2);
+                    permutedPasswords = perm.permute(symbol);
+                    System.out.println("WORDs: " + word1 + " "+ word2 + "      SYMBOL: " + symbol);
+                    for(int k = 0; k < permutedPasswords.size(); k++) {
+                        //System.out.println(permutedPasswords.get(k));
+                        hChecker.add(permutedPasswords.get(k));
+                        //progType (1)
+                        if(progType == 1){
+                            hChecker.checkMatch();
+                        }                    }
+                }
+            }
+        }
+        
+        public void tryOnePermute(String word1){
+            LinkedList<String> symbol;
+            PermutePassword perm = new PermutePassword(); 
+            LinkedList<String> permutedPasswords;
+
+            for( int i = 0; i < MAXSYMBOLS; i++){
+
+                for(int j = 0; j < symbolTable[i].size() ; j++) {
+                    symbol = new LinkedList(symbolTable[i].get(j));
+                    symbol.add(word1);
+                    permutedPasswords = perm.permute(symbol);
+                    System.out.println("WORD: " + word1 + "      SYMBOL: " + symbol);
+                    for(int k = 0; k < permutedPasswords.size(); k++) {
+                        //System.out.println(permutedPasswords.get(k));
+                        hChecker.add(permutedPasswords.get(k));
+                        if(progType == 1){
+                        hChecker.checkMatch();
+                        }
+                    }
+                }
+            }
+        }
+        
+        @Override
+        public void run() {
+            String rowWord;
             long start = 0;
             long end = 0;
             int myIndex;
-            //for MAXSYMBOLS
+            LinkedList<String> colWords;
             
-            //while(dictionary.peek() != null){
-            while(dictCount != dictionary.length)
-                dictCountLock.lock();
-                try {
-                    word = dictionary[dictCount];
-                    myIndex = dictCount;
-                    dictCount++;
-                } finally {
-                      dictCountLock.unlock();  
-                }
+            for(int idxRow = 0; idxRow < dictionary.length; idxRow++){
                 
-                //try {
-                    //word = dictionary.poll(10, TimeUnit.MILLISECONDS);
                 for(int idxCol = 0; idxCol < dictionary.length; idxCol++){
-                    
-                    if()
-                    LinkedList<String> words = charSub.sub(word);
-                    //if(startList(words.size()))
-                    //
-
-                    for(int len = 0; len < words.size(); len++){
-
-                        for( int i = 0; i < MAXSYMBOLS; i++){
-
-                            start = System.currentTimeMillis();
-                            for(int j = 0; j < symbolTable[i].size() ; j++) {
-                                symbol = new LinkedList(symbolTable[i].get(j));
-                                symbol.add(words.get(len));
-                                permutedPasswords = perm.permute(symbol);
-                                //System.out.println("WORD: " + word + "      SYMBOL: " + symbol);
-                                for(int k = 0; k < permutedPasswords.size(); k++) {
-                                    //System.out.println(permutedPasswords.get(k));
-                                    hChecker.add(permutedPasswords.get(k));
-                                    hChecker.checkMatch();
-                                }
-                            }
-                        }
+                    Node node = passMatrix.getNode(idxRow, idxCol);
+                    if(node.isComplete()){
+                        continue;
                     }
-                    end = System.currentTimeMillis();
-                    System.out.println("WORDs: " + words + "      TIME: " + (end-start));
-                    hChecker.add(word);
-
-                    //} catch (InterruptedException ex) {
-                    //    Logger.getLogger(DictionaryAttack.class.getName()).log(Level.SEVERE, null, ex);
-                    //}
-
-                    hChecker.checkMatch();
-                }
-                        
+                    
+                    colWords = charSub.sub(dictionary[idxCol]);
+                    if(!node.isStarted()){
+                        node.startList(colWords.size());
+                    }
+                    
+                    if(node.elements != null){
+                        for(int idx = 0; idx < node.elements.length; idx++){
+                            //Is it initialized?
+                            if(node.elements[idx] == null){
+                                break;
+                            }
+                            //Try to take that element
+                            if(node.elements[idx].compareAndSet(false, true)) {
+                                if(idxRow == idxCol){
+                                    
+                                    tryOnePermute(colWords.get(idx));
+                                }
+                                
+                                tryTwoPermute(dictionary[idxRow], colWords.get(idx));
+                            }
+                            
+                            if(idx == node.elements.length-1){
+                                node.setComplete();
+                            }
+                        }//for idx                         
+                    }//if node.elemnts
+                }//idxCol
+            }//idxRow
         }
-    }    
+    }
 }
