@@ -26,6 +26,22 @@ public class HashChecker {
         
         public void add(String word) {
             hashQ.add(word);
+        } 
+        
+        public void checkOneMatch(){
+            String word;
+            Hasher hash;
+            
+            word = hashQ.remove();
+            hash = new Hasher(word, "MD5");
+            for(int i = 0; i < hashes.text.length; i++){
+                if (hashes.text[i].compareTo(hash.password_hash) == 0) {
+                    //success!
+                    //remove hash from hashes?
+                    System.out.println("Password discovered at index: " + i + "     Cracked Password: " + hash.password );
+                    System.out.flush();
+                }
+            }            
         }
         
         public void checkMatch() {
@@ -34,6 +50,9 @@ public class HashChecker {
             while(hashQ.peek() != null){
                 try {
                    word = hashQ.poll(10, TimeUnit.MILLISECONDS);
+                   if(word == null){
+                       continue;
+                   }
                    hash = new Hasher(word , "MD5");
                 } catch (InterruptedException ex) {
                     Logger.getLogger(HashChecker.class.getName()).log(Level.SEVERE, null, ex);

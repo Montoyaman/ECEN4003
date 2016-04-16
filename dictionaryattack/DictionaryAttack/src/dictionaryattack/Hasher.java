@@ -42,6 +42,7 @@ public class Hasher{
 		} 
 		
 		//MessageDigest takes in a byte array
+                //System.out.println(password.getBytes());
 		hasher.update(password.getBytes());
 		// Computes the hash and then converts the hashed byte array to a (lower case) string
 		password_hash = DatatypeConverter.printHexBinary(hasher.digest()).toLowerCase();

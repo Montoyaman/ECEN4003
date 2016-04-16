@@ -30,14 +30,17 @@ public class DictionaryAttack {
     public static int numHCheckThreads = 1;
     private static int MAXSYMBOLS = 2;
     public static int numGenThreads = MAXSYMBOLS - 1;
-    private static Thread[] hCheckThreads = new Thread[numHCheckThreads];
-    private static Thread[] dictThreads = new Thread[numDictThreads];
+    private static Thread[] hCheckThreads;
+    private static Thread[] dictThreads;
     private static Thread[] genThreads = new Thread[numGenThreads];
     private static HashChecker hChecker;
     private static LinkedList<LinkedList<String>>[] symbolTable = new LinkedList[MAXSYMBOLS];
     private static final CharSub charSub = new CharSub();
     private static PasswordMatrix passMatrix;
-    public static int progType = 2;
+    public static int progType = 1;
+    public static boolean stop = false;
+    public static long overallStart = 0;
+    public static long overallEnd = 0;
     
      /**
      * @param args the command line arguments
@@ -46,7 +49,9 @@ public class DictionaryAttack {
         
         //progName, numDictThreads, numHCheckThreads, (1:sequential, 2:passThrough, 3:readerWriter)
         numDictThreads = Integer.parseInt(args[0]);
+        dictThreads = new Thread[numDictThreads];
         numHCheckThreads = Integer.parseInt(args[1]);
+        hCheckThreads = new Thread[numHCheckThreads];
         progType = Integer.parseInt(args[2]);
         
         
@@ -101,8 +106,39 @@ public class DictionaryAttack {
             dictThreads[i] = new Thread(new DictTask());
             dictThreads[i].start();
         }
+        if(progType == 2){
+            for(int i = 0; i < numHCheckThreads; i++) {
+                hCheckThreads[i] = new Thread(new HashDeqer());
+                hCheckThreads[i].start();
+            }
+        }
+            
+        overallStart = System.currentTimeMillis();
         for(int i = 0; i < numDictThreads; i++) {
             dictThreads[i].join();
+        }
+        if(progType == 2){
+            stop = true;
+            for(int i = 0; i < numHCheckThreads; i++){
+                hCheckThreads[i].join();
+            }
+        }
+        overallEnd = System.currentTimeMillis();
+        System.out.println((overallEnd-overallStart)/1000);
+    }
+    
+    private static class HashDeqer implements Runnable {
+        
+        public void run(){
+            while(!stop){
+                hChecker.checkMatch();
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException ex) {
+                    
+                }
+            }
+            hChecker.checkMatch();
         }
     }
     
@@ -146,14 +182,14 @@ public class DictionaryAttack {
                     symbol.add(word1);
                     symbol.add(word2);
                     permutedPasswords = perm.permute(symbol);
-                    System.out.println("WORDs: " + word1 + " "+ word2 + "      SYMBOL: " + symbol);
                     for(int k = 0; k < permutedPasswords.size(); k++) {
                         //System.out.println(permutedPasswords.get(k));
                         hChecker.add(permutedPasswords.get(k));
                         //progType (1)
                         if(progType == 1){
-                            hChecker.checkMatch();
-                        }                    }
+                            hChecker.checkOneMatch();
+                        }                    
+                    }
                 }
             }
         }
@@ -169,12 +205,11 @@ public class DictionaryAttack {
                     symbol = new LinkedList(symbolTable[i].get(j));
                     symbol.add(word1);
                     permutedPasswords = perm.permute(symbol);
-                    System.out.println("WORD: " + word1 + "      SYMBOL: " + symbol);
                     for(int k = 0; k < permutedPasswords.size(); k++) {
                         //System.out.println(permutedPasswords.get(k));
                         hChecker.add(permutedPasswords.get(k));
                         if(progType == 1){
-                        hChecker.checkMatch();
+                            hChecker.checkOneMatch();
                         }
                     }
                 }
