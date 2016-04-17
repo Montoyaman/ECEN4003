@@ -12,6 +12,7 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,16 +49,16 @@ public class DictionaryAttack {
     public static void main(String[] args) throws IOException, InterruptedException {    
         
         //progName, numDictThreads, numHCheckThreads, (1:sequential, 2:passThrough, 3:readerWriter)
-        numDictThreads = Integer.parseInt(args[0]);
+//        numDictThreads = Integer.parseInt(args[0]);
         dictThreads = new Thread[numDictThreads];
-        numHCheckThreads = Integer.parseInt(args[1]);
+//        numHCheckThreads = Integer.parseInt(args[1]);
         hCheckThreads = new Thread[numHCheckThreads];
-        progType = Integer.parseInt(args[2]);
+//        progType = Integer.parseInt(args[2]);
         
         
         //Read the dictionary into variable dictionary
-//        String workingPath = DictionaryAttack.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        String workingPath = "./";
+        String workingPath = DictionaryAttack.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+//        String workingPath = "./";
         String path = workingPath.concat("dictionaryattack/john/john.txt");
         DictionaryReader dict = new DictionaryReader(path);
         dictionary = dict.text;
@@ -231,18 +232,23 @@ public class DictionaryAttack {
                     }
                     
                     colWords = charSub.sub(dictionary[idxCol]);
+                    
+                    //Test and Test and Set idea
                     if(!node.isStarted()){
                         node.startList(colWords.size());
                     }
                     
-                    if(node.elements != null){
-                        for(int idx = 0; idx < node.elements.length; idx++){
+                    //Save our own pointer to elements
+                    AtomicBoolean[] elem = node.elements;
+                    
+                    if(elem != null){
+                        for(int idx = 0; idx < elem.length; idx++){
                             //Is it initialized?
-                            if(node.elements[idx] == null){
+                            if(elem[idx] == null){
                                 break;
                             }
                             //Try to take that element
-                            if(node.elements[idx].compareAndSet(false, true)) {
+                            if(elem[idx].compareAndSet(false, true)) {
                                 //If we are below the diagonal, don't try the first element, its a duplicate
                                 if (!(idxRow > idxCol && idx == 0)) {
                                     //On the diagonal
@@ -254,8 +260,9 @@ public class DictionaryAttack {
                                 }
                             }
                             
-                            if(idx == node.elements.length-1){
+                            if(idx == elem.length-1){
                                 node.setComplete();
+                                node.elements = null; //For cleaning up memory
                             }
                         }//for idx                         
                     }//if node.elemnts

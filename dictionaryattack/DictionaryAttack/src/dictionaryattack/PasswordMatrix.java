@@ -6,6 +6,7 @@
 package dictionaryattack;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class Node {
     public AtomicBoolean[] elements; //Charsub elements

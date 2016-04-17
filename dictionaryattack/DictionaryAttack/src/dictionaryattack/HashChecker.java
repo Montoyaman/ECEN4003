@@ -33,6 +33,7 @@ public class HashChecker {
             Hasher hash;
             
             word = hashQ.remove();
+
             hash = new Hasher(word, "MD5");
             for(int i = 0; i < hashes.text.length; i++){
                 if (hashes.text[i].compareTo(hash.password_hash) == 0) {
