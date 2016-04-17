@@ -27,7 +27,7 @@ public class DictionaryAttack {
     public static int dictCount = 0;
     //public static BlockingQueue<String> dictionary;
     public static String[] dictionary;
-    public static int numDictThreads = 4;
+    public static int numDictThreads = 1;
     public static int numHCheckThreads = 1;
     private static int MAXSYMBOLS = 2;
     public static int numGenThreads = MAXSYMBOLS - 1;
@@ -64,11 +64,6 @@ public class DictionaryAttack {
         dictionary = dict.text;
         dict.OpenFile();
         passMatrix = new PasswordMatrix(dictionary.length);
-        //dictionary = new ArrayBlockingQueue(dict.text.length);
-        /*for(int i = 0; i < dict.text.length; i++) {
-            //add index
-            //dictionary.add(dict.text[i]);
-        }*/
         
         //need hashed passwords
         path = workingPath.concat("dictionaryattack/hashes.txt");
@@ -81,10 +76,6 @@ public class DictionaryAttack {
         path = workingPath.concat("dictionaryattack/symbols/symbols.txt");
         DictionaryReader symbols = new DictionaryReader(path);
         symbols.OpenFile();
-        
-        //Read the numbers table
-//        path = workingPath.concat("dictionaryattack/numbers/numbers.txt");
-//        DictionaryReader numbers = new DictionaryReader(path);
         
         symbolTable[0] = new LinkedList();
         for(int i = 0; i < symbols.text.length; i++) {
@@ -104,8 +95,11 @@ public class DictionaryAttack {
             genThreads[i].join();
         }
         
+        //Divisions of the table (offset to start from)
+        int divisions = dictionary.length/numDictThreads;
+        
         for(int i = 0; i < numDictThreads; i++) {
-            dictThreads[i] = new Thread(new DictTask());
+            dictThreads[i] = new Thread(new DictTask(i*divisions));
             dictThreads[i].start();
         }
         if(progType == 2){
@@ -169,8 +163,10 @@ public class DictionaryAttack {
     }
     
     private static class DictTask implements Runnable {
-               
-        public DictTask(){
+        int offset = 0;
+        
+        public DictTask(int off){
+            offset = off; //Offset starting in the table
         }
         
         public void tryTwoPermute(String word1, String word2){
@@ -186,12 +182,11 @@ public class DictionaryAttack {
                     permutedPasswords = perm.permute(symbol);
                     
                     for(int k = 0; k < permutedPasswords.size(); k++) {
-//                        System.out.println(permutedPasswords.get(k));
-                        hChecker.add(permutedPasswords.get(k));
-                        //progType (1)
                         if(progType == 1){
-                            hChecker.checkOneMatch();
-                        }                    
+                            hChecker.checkHash(permutedPasswords.get(k));
+                        } else {
+                            hChecker.add(permutedPasswords.get(k));
+                        }
                     }
                 }
             }
@@ -209,10 +204,10 @@ public class DictionaryAttack {
                     symbol.add(word1);
                     permutedPasswords = perm.permute(symbol);
                     for(int k = 0; k < permutedPasswords.size(); k++) {
-                        //System.out.println(permutedPasswords.get(k));
-                        hChecker.add(permutedPasswords.get(k));
                         if(progType == 1){
-                            hChecker.checkOneMatch();
+                            hChecker.checkHash(permutedPasswords.get(k));
+                        } else {
+                            hChecker.add(permutedPasswords.get(k));
                         }
                     }
                 }
@@ -222,8 +217,16 @@ public class DictionaryAttack {
         @Override
         public void run() {
             LinkedList<String> colWords;
+            int idxRow = 0;
             
-            for(int idxRow = 0; idxRow < dictionary.length; idxRow++){
+            for(int idRow = offset; idRow < dictionary.length+offset; idRow++){
+                //First off, check that we aren't overflowing the table
+                if (idRow >= dictionary.length) {
+                    //Wrap around
+                    idxRow = idRow - dictionary.length;
+                } else {
+                    idxRow = idRow;
+                }
                 
                 for(int idxCol = 0; idxCol < dictionary.length; idxCol++){
                     Node node = passMatrix.getNode(idxRow, idxCol);
@@ -267,7 +270,7 @@ public class DictionaryAttack {
                         }//for idx                         
                     }//if node.elemnts
                 }//idxCol
-            }//idxRow
+            }//idxRow            
         }
     }
 }

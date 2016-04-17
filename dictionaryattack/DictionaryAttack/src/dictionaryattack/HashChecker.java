@@ -28,6 +28,20 @@ public class HashChecker {
             hashQ.add(word);
         } 
         
+        public void checkHash(String word){
+            Hasher hash;
+            
+            hash = new Hasher(word, "MD5");
+            for(int i = 0; i < hashes.text.length; i++){
+                if (hashes.text[i].compareTo(hash.password_hash) == 0) {
+                    //success!
+                    //remove hash from hashes?
+                    System.out.println("Password discovered at index: " + i + "     Cracked Password: " + hash.password );
+                    System.out.flush();
+                }
+            }            
+        }
+        
         public void checkOneMatch(){
             String word;
             Hasher hash;
